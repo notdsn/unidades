@@ -1,0 +1,15 @@
+import test from 'node:test'; import assert from 'node:assert/strict';
+import {parseReports,weekOf,dateSP,normalize,matchUnit,pendingFor,duplicateKey,validateBackup} from '../core.js';
+const a='Unidade: Ana 🌻\nLíder: Elisa\nColíder: Antônia\nParticipantes: 2\nNão crente:0\nVisitantes da primeira vez: 0\nTotal: 3';
+const b='*Relatório de consolidação*\nUnidade: O Caminho\nConsolidador: Gilson\nConsolidado: Carlos Eduardo\nLição: 3';
+test('weekly example',()=>assert.deepEqual(parseReports(a),[{unit:'Ana 🌻',leader:'Elisa',coleader:'Antônia',participants:2,unbelievers:0,visitors:0,total:3,type:'unit'}]));
+test('consolidation example',()=>assert.equal(parseReports(b)[0].person,'Carlos Eduardo'));
+test('multiple forwarded reports',()=>assert.deepEqual(parseReports(a+'\n\n'+b+'\n\n'+a).map(r=>r.type),['unit','consolidation','unit']));
+test('accents, markdown and aliases',()=>{let r=parseReports('*Unidade:* Luz\n*Líder:* José\nNao-crente: 2\nVisitantes da 1ª vez:1\nParticipantes:4\nTotal:7')[0];assert.equal(r.unbelievers,2);assert.equal(r.visitors,1);assert.equal(parseReports('Unidade: Luz\nConsolidado: João\nLicao:3')[0].lesson,3)});
+test('Sunday church week and Sao Paulo boundary',()=>{assert.equal(weekOf('2026-11-08'),'2026-11-08');assert.equal(weekOf('2026-11-07'),'2026-11-01');assert.equal(dateSP(new Date('2026-11-08T02:59:59Z')),'2026-11-07');assert.equal(weekOf('2026-11-14'),'2026-11-08')});
+test('emoji-insensitive matching, ambiguous is not silently merged',()=>{assert.equal(normalize(' Ana 🌻 '),normalize('ana'));assert.equal(matchUnit([{id:'1',name:'Ana 🌻'}],'ANA').id,'1');assert.equal(matchUnit([{id:'1',name:'Ana 🌻'},{id:'2',name:'Ana'}],'ana'),null)});
+test('only active units with people need consolidation; future people excluded',()=>{const u=[{id:'a',active:true},{id:'b',active:true},{id:'c',active:false}]; const p=[{unitId:'a',active:true,accepted:'2026-11-08'},{unitId:'b',accepted:'2026-12-01'}];const pending=pendingFor(u,p,[],'2026-11-08');assert.equal(pending.unit.length,2);assert.deepEqual(pending.consolidation.map(x=>x.id),['a']);assert.equal(pendingFor(u,p,[{unitId:'a',week:'2026-11-08',type:'consolidation'}],'2026-11-08').consolidation.length,0)});
+test('duplicate key per person per week',()=>{assert.equal(duplicateKey({unitId:'a',week:'2026-11-08',type:'consolidation',person:'José'}),duplicateKey({unitId:'a',week:'2026-11-08',type:'consolidation',person:' JOSE '}))});
+test('malformed number flagged for review not coerced to zero',()=>assert.equal(parseReports('Unidade: Luz\nTotal: não sei')[0].total,''));
+test('invalid backup rejected',()=>assert.throws(()=>validateBackup({version:1,units:[{}],people:[],reports:[]})));
+test('multiple people in same unit split correctly',()=>{const r=parseReports(b+'\nConsolidado: Maria\nLição: 2');assert.equal(r.length,2);assert.equal(r[1].unit,'O Caminho');assert.equal(r[1].mentor,'Gilson')});
