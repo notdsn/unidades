@@ -24,7 +24,7 @@ Os testes incluem parser, semana de domingo a sábado em America/Sao_Paulo, aler
 
 ## Publicar
 
-Os arquivos em `dist/` são todo o site. Podem ser hospedados em qualquer serviço estático, incluindo GitHub Pages na subpasta `/unidades/`. A publicação exige autorização explícita do proprietário. Nenhum repositório foi criado e nenhum dado foi publicado durante a implementação.
+Publicado em https://notdsn.github.io/unidades/ pelo repositório `notdsn/unidades`, branch `main`, raiz `/`. Os arquivos em `dist/` também formam um site estático completo. Somente código é publicado: os registros pessoais permanecem no navegador de cada usuário.
 
 ## Uso e regras
 
@@ -33,11 +33,22 @@ Os arquivos em `dist/` são todo o site. Podem ser hospedados em qualquer servi�
 - Unidades desconhecidas são criadas automaticamente. Nomes são comparados sem emoji, acentos, espaços extras ou diferença de caixa. Não existe fusão de Unidades; possíveis duplicatas devem ser conferidas/editadas.
 - A duplicata é Unidade + semana + tipo (+ nome da pessoa na consolidação). Substituição requer confirmação. Dentro do mesmo lote, prevalece o último registro após a confirmação.
 - O total informado é preservado, mesmo que seja diferente da soma das categorias; a prévia mostra um aviso.
-- **Consolidação:** o relatório cadastra ou atualiza a pessoa. A lição atual usa o relatório mais recente por data, para não regredir ao cadastrar um histórico antigo. “Aceitou Jesus” permite cadastrar uma pessoa sem relatório, com data/observações opcionais.
+- **Consolidação:** o relatório cadastra ou atualiza a pessoa. A lição atual considera relatórios e atualizações manuais datadas, para não regredir ao cadastrar um histórico antigo. “Aceitou Jesus” permite cadastrar uma pessoa sem relatório, com data/observações opcionais.
 - **Avisos:** apenas Unidades ativas. Faltante de consolidação somente quando existe pessoa em acompanhamento e nenhum relatório daquele tipo foi registrado na semana. Um relatório de consolidação já satisfaz a Unidade na semana, não é necessário um por pessoa. Pessoas concluídas não geram esse aviso.
 - Semana de domingo a sábado, fuso America/Sao_Paulo. Data manual do relatório define a semana; datas na mensagem não são inferidas.
 - Avisos existem no painel, não são notificações push nem mensagens automáticas ao WhatsApp.
 - Relatórios podem ser corrigidos colando novamente e confirmando a substituição. A versão anterior não é mantida. Edição de cadastro não reescreve relatórios históricos.
+
+## Novos recursos de acompanhamento
+
+1. **Resumo semanal:** o botão no Início monta texto com marcação do WhatsApp, datas da semana selecionada, recebidos/esperados, pendências, totais, pessoas que aceitaram Jesus e Unidades sem encontro. Só copia: não envia. Sem permissão de clipboard, abre caixa selecionável. Quando a data de aceitação não foi informada, a contagem usa `started` (início do acompanhamento).
+2. **Contato do líder:** WhatsApp opcional na Unidade; aceita número brasileiro com DDD e com/sem +55. O link `wa.me` contém um pedido educado do relatório. O usuário abre, edita e envia no próprio WhatsApp; nada é enviado automaticamente.
+3. **Primeiras visitas:** relatório com visitantes > 0 gera acompanhamento para o domingo seguinte. É por Unidade, não por visitante. Permite adicionar nomes fornecidos pelo usuário e marcar acompanhado ou reabrir. Correção de quantidade reabre o acompanhamento preservando nomes; substituir por zero visitantes ou sem encontro remove o lembrete derivado. Backups antigos ganham acompanhamentos a partir dos relatórios existentes.
+4. **Lição sem avanço:** alerta após 21 dias sem aumento da lição registrada, por relatórios ou atualizações manuais. Repetir a mesma lição não reinicia a contagem. Pessoas concluídas e Unidades inativas não entram. Sem relatórios, usa a lição e a data de início conhecidas. Não inventa histórico de lições; informações antigas sem data confiável não permitem determinar o tempo exato.
+5. **Não houve encontro:** disponível na pendência e no detalhe da Unidade. Motivos Chuva, Feriado, Sem encontro ou Outro; observação opcional. É um relatório de Unidade com `noMeeting: true` e quatro números zerados. Satisfaz a pendência semanal de Unidade, não a de consolidação, e compartilha a regra de duplicidade com relatório normal. Substituição exige confirmação.
+6. **Gráfico:** SVG leve das oito semanas até a selecionada, com participantes, primeiras visitas e aceitação de Jesus. Possui tabela alternativa de valores exatos e legenda. Sem encontro contribui zero; `accepted` é usado preferencialmente e `started` é a alternativa.
+
+O formato continua `version: 1` e a chave continua `unidades.rede.v1`. Campos novos são opcionais para leitura de backups antigos. Novos backups incluem telefone, acompanhamentos de visitantes e eventos de atualização de lição. Todos os novos dados continuam locais.
 
 ## Dados e privacidade
 
